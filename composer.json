@@ -10,7 +10,7 @@
   ],
   "require": {
     "yiisoft/yii2": "^2.0",
-    "miloschuman/yii2-highcharts-widget": "^5.0"
+    "miloschuman/yii2-highcharts-widget": "@stable"
   },
   "autoload": {
     "psr-4": {

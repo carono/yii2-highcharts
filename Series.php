@@ -33,8 +33,10 @@ class Series extends Object
             $data = ArrayHelper::getColumn($items, $this->field);
 
         }
-        if ($data && is_numeric(reset($data))) {
-            $data = array_map('floatval', $data);
+        foreach ($data as &$datum) {
+            if (is_numeric($datum)) {
+                $datum = floatval($datum);
+            }
         }
         $result['data'] = $data;
         $result['color'] = $this->color;
