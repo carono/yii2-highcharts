@@ -12,6 +12,15 @@ class Highcharts extends \miloschuman\highcharts\Highcharts
     public $group;
     public $serialOptions = [];
 
+    protected static function applyFormat($value, $format)
+    {
+        if (is_callable($format)) {
+            return call_user_func($format, $value);
+        } else {
+            return call_user_func([\Yii::$app->formatter, 'as' . ucfirst($format)], $value);
+        }
+    }
+
     public function init()
     {
         if ($this->dataProvider) {
@@ -19,12 +28,14 @@ class Highcharts extends \miloschuman\highcharts\Highcharts
             $xAxis = ArrayHelper::getValue($this->options, 'xAxis.field');
             $yAxis = ArrayHelper::getValue($this->options, 'yAxis.field');
             $arr = explode(':', $xAxis);
-            $format = ArrayHelper::getValue($arr, 1);
+            if (!$format = ArrayHelper::getValue($arr, 1)) {
+                $format = ArrayHelper::getValue($this->options, 'xAxis.format');
+            }
             $xAxis = ArrayHelper::getValue($arr, 0);
             $categories = ArrayHelper::map($models, $xAxis, $xAxis);
             if ($format) {
                 array_walk($categories, function (&$data) use ($format) {
-                    $data = call_user_func([\Yii::$app->formatter, 'as' . ucfirst($format)], $data);
+                    $data = self::applyFormat($data, $format);
                 });
             }
             $categories = array_values(array_unique($categories));
@@ -39,7 +50,7 @@ class Highcharts extends \miloschuman\highcharts\Highcharts
                 $items = [];
                 foreach ($data as $datum) {
                     $dataX = $datum->{$xAxis};
-                    $key = $format ? call_user_func([\Yii::$app->formatter, 'as' . ucfirst($format)], $dataX) : $dataX;
+                    $key = $format ? self::applyFormat($dataX, $format) : $dataX;
                     $items[$key] = $datum->{$yAxis};
                 }
                 foreach ($categories as $category) {
