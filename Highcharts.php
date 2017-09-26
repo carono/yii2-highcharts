@@ -60,7 +60,7 @@ class Highcharts extends \miloschuman\highcharts\Highcharts
             }
             $this->options['xAxis']['categories'] = $categories;
         }
-        foreach ($this->options['series'] as $key => $series) {
+        foreach (ArrayHelper::getValue($this->options, 'series', []) as $key => $series) {
             if ($series instanceof Series) {
                 $this->options['series'][$key] = $series->toArray();
             }
