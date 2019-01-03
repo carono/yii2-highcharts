@@ -15,7 +15,7 @@
   },
   "autoload": {
     "psr-4": {
-      "carono\\highcharts\\src\\": ""
+      "carono\\highcharts\\": "src"
     }
   }
 }
