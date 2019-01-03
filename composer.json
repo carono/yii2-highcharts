@@ -6,7 +6,7 @@
     {
       "name": "Aleksandr Kasyanov",
       "email": "info@carono.ru",
-      "homepage": "http://carono.ru"
+      "homepage": "https://carono.ru"
     }
   ],
   "require": {
@@ -15,7 +15,7 @@
   },
   "autoload": {
     "psr-4": {
-      "carono\\highcharts\\": ""
+      "carono\\highcharts\\src\\": ""
     }
   }
 }

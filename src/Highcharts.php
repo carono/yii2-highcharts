@@ -8,25 +8,27 @@ use yii\helpers\ArrayHelper;
 class Highcharts extends \miloschuman\highcharts\Highcharts
 {
     const FORMAT_TOOLTIP_PERCENT = 'percent';
+
     public $dataProvider;
     public $group;
     public $serialOptions = [];
+    public $x;
+    public $y;
 
     protected static function applyFormat($value, $format)
     {
-        if (is_callable($format)) {
-            return call_user_func($format, $value);
-        } else {
-            return call_user_func([\Yii::$app->formatter, 'as' . ucfirst($format)], $value);
+        if (\is_callable($format)) {
+            return $format($value);
         }
+        return \call_user_func([\Yii::$app->formatter, 'as' . ucfirst($format)], $value);
     }
 
     public function init()
     {
         if ($this->dataProvider) {
             $models = $this->dataProvider->models;
-            $xAxis = ArrayHelper::getValue($this->options, 'xAxis.field');
-            $yAxis = ArrayHelper::getValue($this->options, 'yAxis.field');
+            $xAxis = $this->x ?: ArrayHelper::getValue($this->options, 'xAxis.field');
+            $yAxis = $this->y ?: ArrayHelper::getValue($this->options, 'yAxis.field');
             $arr = explode(':', $xAxis);
             if (!$format = ArrayHelper::getValue($arr, 1)) {
                 $format = ArrayHelper::getValue($this->options, 'xAxis.format');
@@ -39,19 +41,20 @@ class Highcharts extends \miloschuman\highcharts\Highcharts
                 });
             }
             $categories = array_values(array_unique($categories));
+            $group = $this->group;
             $models = ArrayHelper::map($models, 'id', function ($data) {
                 return $data;
-            }, $this->group);
-            foreach ($models as $id => $data) {
+            }, $group);
+            foreach ($group ? $models : [$models] as $id => $data) {
                 $series = new Series();
-                $seriesOptions = ArrayHelper::getValue($this->serialOptions, reset($data)->{$this->group});
+                $seriesOptions = ArrayHelper::getValue($this->serialOptions, ArrayHelper::getValue(reset($data), $group));
                 $series->name = ArrayHelper::getValue($seriesOptions, 'name');
                 $series->color = ArrayHelper::getValue($seriesOptions, 'color');
                 $items = [];
                 foreach ($data as $datum) {
-                    $dataX = $datum->{$xAxis};
+                    $dataX = ArrayHelper::getValue($datum, $xAxis);
                     $key = $format ? self::applyFormat($dataX, $format) : $dataX;
-                    $items[$key] = $datum->{$yAxis};
+                    $items[$key] = ArrayHelper::getValue($datum, $yAxis);
                 }
                 foreach ($categories as $category) {
                     $series->data[] = ArrayHelper::getValue($items, $category);
