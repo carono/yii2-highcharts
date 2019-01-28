@@ -47,7 +47,11 @@ class Highcharts extends \miloschuman\highcharts\Highcharts
             }, $group);
             foreach ($group ? $models : [$models] as $id => $data) {
                 $series = new Series();
-                $seriesOptions = ArrayHelper::getValue($this->serialOptions, ArrayHelper::getValue(reset($data), $group));
+                if ($group) {
+                    $seriesOptions = ArrayHelper::getValue($this->serialOptions, ArrayHelper::getValue(reset($data), $group));
+                } else {
+                    $seriesOptions = ArrayHelper::getValue($this->serialOptions, $id);
+                }
                 $series->name = ArrayHelper::getValue($seriesOptions, 'name');
                 $series->color = ArrayHelper::getValue($seriesOptions, 'color');
                 $items = [];
