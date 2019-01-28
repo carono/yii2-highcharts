@@ -50,7 +50,7 @@ class Highcharts extends \miloschuman\highcharts\Highcharts
                 if ($group) {
                     $seriesOptions = ArrayHelper::getValue($this->serialOptions, ArrayHelper::getValue(reset($data), $group));
                 } else {
-                    $seriesOptions = ArrayHelper::getValue($this->serialOptions, $id);
+                    $seriesOptions = ArrayHelper::getValue($this->serialOptions, $id, []);
                 }
                 $series->name = ArrayHelper::getValue($seriesOptions, 'name');
                 $series->color = ArrayHelper::getValue($seriesOptions, 'color');
