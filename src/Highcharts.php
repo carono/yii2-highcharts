@@ -42,9 +42,11 @@ class Highcharts extends \miloschuman\highcharts\Highcharts
             }
             $categories = array_values(array_unique($categories));
             $group = $this->group;
-            $models = ArrayHelper::map($models, 'id', function ($data) {
-                return $data;
-            }, $group);
+            if ($group) {
+                $models = ArrayHelper::map($models, 'id', function ($data) {
+                    return $data;
+                }, $group);
+            }
             foreach ($group ? $models : [$models] as $id => $data) {
                 $series = new Series();
                 if ($group) {
