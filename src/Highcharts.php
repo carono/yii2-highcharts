@@ -42,30 +42,27 @@ class Highcharts extends \miloschuman\highcharts\Highcharts
             }
             $categories = array_values(array_unique($categories));
             $group = $this->group;
-            if ($group) {
-                $models = ArrayHelper::map($models, 'id', function ($data) {
-                    return $data;
-                }, $group);
-            }
-            foreach ($group ? $models : [$models] as $id => $data) {
-                $series = new Series();
-                if ($group) {
+            $models = ArrayHelper::map($models, 'id', function ($data) {
+                return $data;
+            }, $group);
+
+            foreach ((array)$yAxis as $yAxis1) {
+                foreach ($group ? $models : [$models] as $id => $data) {
+                    $series = new Series();
                     $seriesOptions = ArrayHelper::getValue($this->serialOptions, ArrayHelper::getValue(reset($data), $group));
-                } else {
-                    $seriesOptions = ArrayHelper::getValue($this->serialOptions, $id, []);
+                    $series->name = ArrayHelper::getValue($seriesOptions, 'name', ($group ? ArrayHelper::getValue(current($data), $group) . ": " : '') . $yAxis1);
+                    $series->color = ArrayHelper::getValue($seriesOptions, 'color');
+                    $items = [];
+                    foreach ($data as $datum) {
+                        $dataX = ArrayHelper::getValue($datum, $xAxis);
+                        $key = $format ? self::applyFormat($dataX, $format) : $dataX;
+                        $items[$key] = ArrayHelper::getValue($datum, $yAxis1);
+                    }
+                    foreach ($categories as $category) {
+                        $series->data[] = ArrayHelper::getValue($items, $category);
+                    }
+                    $this->options['series'][] = $series;
                 }
-                $series->name = ArrayHelper::getValue($seriesOptions, 'name');
-                $series->color = ArrayHelper::getValue($seriesOptions, 'color');
-                $items = [];
-                foreach ($data as $datum) {
-                    $dataX = ArrayHelper::getValue($datum, $xAxis);
-                    $key = $format ? self::applyFormat($dataX, $format) : $dataX;
-                    $items[$key] = ArrayHelper::getValue($datum, $yAxis);
-                }
-                foreach ($categories as $category) {
-                    $series->data[] = ArrayHelper::getValue($items, $category);
-                }
-                $this->options['series'][] = $series;
             }
             $this->options['xAxis']['categories'] = $categories;
         }
