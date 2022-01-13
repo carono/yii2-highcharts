@@ -14,6 +14,7 @@ class Highcharts extends \miloschuman\highcharts\Highcharts
     public $serialOptions = [];
     public $x;
     public $y;
+    public $pk = 'id';
 
     protected static function applyFormat($value, $format)
     {
@@ -42,7 +43,14 @@ class Highcharts extends \miloschuman\highcharts\Highcharts
             }
             $categories = array_values(array_unique($categories));
             $group = $this->group;
-            $models = ArrayHelper::map($models, 'id', function ($data) {
+
+            $models = ArrayHelper::map($models, function ($data) {
+                $key = [];
+                foreach ((array)$this->pk as $pk) {
+                    $key[] = ArrayHelper::getValue($data, $pk);
+                }
+                return implode('-', $key);
+            }, function ($data) {
                 return $data;
             }, $group);
 
